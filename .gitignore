@@ -24,3 +24,6 @@ _autosave-*
 # Exported BOM files
 *.xml
 *.csv
+
+# config file contains WiFi password. Exclude it
+config.h
