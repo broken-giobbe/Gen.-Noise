@@ -1,24 +1,22 @@
+/**
+ *
+ */
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-const char* ssid = "Pingami Tutto";
-const char* password = "xe+giornicheluganighe";
-
-ESP8266WebServer server(80);
-
-const int led = LED_BUILTIN;
-const int N_AVERAGE = 1024; // number of samples to consider for the average
-const int NUM_BITS = 8; // number of random bits to output
+// Various config parameters here
+#include "config.h"
 
 /*
  * Global variables
  */
-double avg = 100.0; // average of last N_AVERAGE samples
+double avg = INITAL_AVERAGE; // average of last N_AVERAGE samples
+ESP8266WebServer server(80); // web server instance
 
 /**
- * 
+ *
  */
 int getSampleUpdateAverage() {
   static int nSamples = 1;
@@ -26,7 +24,7 @@ int getSampleUpdateAverage() {
   // get new sample and update counter
   int sample = analogRead(A0);
   nSamples = (nSamples +1) % N_AVERAGE;
-  if (nSamples == 0) 
+  if (nSamples == 0)
     nSamples = 2;
 
   // update average
@@ -38,7 +36,7 @@ int getSampleUpdateAverage() {
   return sample;
 }
 /**
- * 
+ *
  */
 void handleRoot() {
   digitalWrite(led, 1);
@@ -70,7 +68,7 @@ int getNoise() {
   int ran=0;
   int s;
   int i = 0;
-  
+
   while (i < NUM_BITS)
   {
     s = getSampleUpdateAverage();
@@ -79,14 +77,14 @@ int getNoise() {
       bitSet(ran, i);
       i++;
     }
-     
+
     if (s < avg)
     {
       i++;
     }
-    // if s == avg discard value 
+    // if s == avg discard value
   }
-  
+
   return ran;
 }
 
@@ -123,10 +121,6 @@ void setup(void) {
 
   server.begin();
   Serial.println("HTTP server started");
-
-  // analogWrite on pin 0 to test the ADC
-  pinMode(0, OUTPUT);
-  analogWrite(0, 512);
 }
 
 void loop(void) {
